@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using TraningApp.Backend.Services;
 using TraningApp.Backend.Data;
+using System.Linq;
 
 public class EfCoreRepository<T> : IRepository<T> where T : class
 {
@@ -15,6 +16,7 @@ public class EfCoreRepository<T> : IRepository<T> where T : class
     public async Task<T> Create(T entity)
     {
         await _context.Set<T>().AddAsync(entity);
+        await _context.SaveChangesAsync();
         return entity;
     }
 
@@ -35,10 +37,21 @@ public class EfCoreRepository<T> : IRepository<T> where T : class
         return entity;
     }
 
-    public async Task<IEnumerable<T>> GetAll()
+    public async Task<IEnumerable<T>> GetAll(int? page, int? limit)
     {
-        IEnumerable<T> entities = await _context.Set<T>().ToListAsync();
-        return entities;
+        IQueryable<T> entities = _context.Set<T>().AsQueryable();  
+        if(page != null)
+        {
+            entities = entities.Skip(page.Value);
+        }
+        if(limit != null)
+        {
+            entities = entities.Take(limit.Value);
+        }
+
+        IEnumerable<T> filteredEntities = await entities.ToListAsync();
+        
+        return filteredEntities;
     }
 
     public async Task Update(T entity)

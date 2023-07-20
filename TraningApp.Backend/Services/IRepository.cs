@@ -6,5 +6,6 @@ public interface IRepository<T>
     Task<T?> Get(Guid id);
     Task Update(T entity);
     Task Delete(Guid id);
-    Task<IEnumerable<T>> GetAll();
+    Task<IEnumerable<T>> GetAll(int? skip, int? limit);
+    
 }

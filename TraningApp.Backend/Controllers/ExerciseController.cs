@@ -22,9 +22,9 @@ namespace TraningTrakerApp.Backend.Controllers
 
         // Read all
         [HttpGet]
-        public async Task<IEnumerable<Exercise>> GetAllExersises()  
+        public async Task<IEnumerable<Exercise>> GetAllExersises(int? page, int? limit)  
         {
-            return await _repository.GetAll();
+            return await _repository.GetAll(page, limit);
         }
 
         // Read single
@@ -45,7 +45,8 @@ namespace TraningTrakerApp.Backend.Controllers
         public async Task<IActionResult> CreateExercise([FromBody]Exercise newExercise)  
         {
             Exercise result = await _repository.Create(newExercise);
-            return CreatedAtAction("GetById", new {id = result.Id});
+            // return CreatedAtAction("GetById", new {id = result.Id});
+            return Ok(result);
         }
 
         // Update
