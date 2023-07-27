@@ -87,7 +87,9 @@ namespace TraningApp.Backend.Controllers
         [HttpPost]
         public async Task<IActionResult> AddNew(Exercise exercise)
         {
-            await _repository.
+            Session session = await _repository.Get(1);
+            session.Exercise.Append(exercise);
+            return Ok(session);
         }
 
     }

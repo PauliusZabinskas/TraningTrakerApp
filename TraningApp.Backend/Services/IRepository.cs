@@ -9,5 +9,5 @@ public interface IRepository<T>
     Task<IEnumerable<T>> GetAll(int? skip, int? limit);
     Task<T?> FindBy(Func<T, bool> selector);
     Task<IEnumerable<T?>> FindManyBy(Func<T, bool> selector, int? page, int? limit);
-    Task AddNew(T entity);
+    
 }

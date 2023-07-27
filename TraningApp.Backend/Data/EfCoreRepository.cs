@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using TraningApp.Backend.Services;
 using TraningApp.Backend.Data;
-using System.Linq;
-using TraningTrakerApp.Backend.Models;
 
 public class EfCoreRepository<T> : IRepository<T> where T : class
 {
