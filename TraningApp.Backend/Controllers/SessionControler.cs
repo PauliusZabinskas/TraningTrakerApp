@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Services;
 using TraningApp.Backend.Models;
 using TraningApp.Backend.Services;
+using TraningTrakerApp.Backend.Models;
 
 namespace TraningApp.Backend.Controllers
 {
@@ -15,11 +12,14 @@ namespace TraningApp.Backend.Controllers
     {
         private readonly IRepository<Session> _repository;
         private readonly ICurrentUser _userService;
+        
 
-        public SessionControler(IRepository<Session> repository, ICurrentUser currentUser)
+
+        public SessionControler(IRepository<Session> repository, ICurrentUser currentUserService)
         {
             _repository = repository;
-            _userService = currentUser;
+            _userService = currentUserService;
+            
         }
         [HttpPost]
         public async Task<IActionResult> CreateSession([FromBody] Session item)
@@ -27,7 +27,7 @@ namespace TraningApp.Backend.Controllers
             int? currentUser = _userService.GetUser();
             if(currentUser != null)
             {
-                item.CreatedBy = currentUser.Value;
+                item.CreatedByUser = currentUser.Value;
                 Session result = await _repository.Create(item);
                 return CreatedAtAction("GetSessionByID", new{result.Id}, result);
             }
@@ -51,7 +51,7 @@ namespace TraningApp.Backend.Controllers
         [HttpPatch]
         public async Task<IActionResult> UpdateSession([FromBody] Session item)
         {
-            if(item != null & item.CreatedBy == _userService.GetUser())
+            if(item != null & item.CreatedByUser == _userService.GetUser())
             {
                 await _repository.Update(item);
                 return Ok();
@@ -80,8 +80,14 @@ namespace TraningApp.Backend.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllSession([FromQuery] int? skip, [FromQuery] int? limit)
         {
-            IEnumerable<Session?> myTasks = await _repository.FindManyBy(x => x.CreatedBy == _userService.GetUser(), skip, limit);
+            IEnumerable<Session?> myTasks = await _repository.FindManyBy(x => x.CreatedByUser == _userService.GetUser(), skip, limit);
             return Ok(myTasks);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddNew(Exercise exercise)
+        {
+            await _repository.
         }
 
     }

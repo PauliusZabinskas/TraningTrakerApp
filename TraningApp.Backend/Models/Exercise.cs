@@ -1,6 +1,6 @@
 namespace TraningTrakerApp.Backend.Models
 {
-    public class Exercise
+    public class Exercise 
     {
 
         public int Id { get; set; } 
@@ -9,6 +9,7 @@ namespace TraningTrakerApp.Backend.Models
         public ExerciseType ExerciseType { get; set; } = ExerciseType.StrengthTraining;
         public int ExerciseSets { get; set; } = 0;
         public int ExerciseReps { get; set; } = 0;
+        public int SessionId { get; set; }
         
 
     }

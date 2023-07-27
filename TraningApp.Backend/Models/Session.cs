@@ -12,7 +12,7 @@ namespace TraningApp.Backend.Models
         public DateTime Date { get; set; } = DateTime.Now;
         public string? SessionName { get; set; }
         public string? TargetedMuscleGroups { get; set; }
-        public Exercise? Exercise { get; set; }
-        public int CreatedBy { get; set; }
+        public IEnumerable<Exercise>? Exercise { get; set; } = new List<Exercise>();
+        public int CreatedByUser { get; set; }
     }
 }

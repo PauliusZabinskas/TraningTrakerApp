@@ -1,68 +1,65 @@
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Services;
 using TraningApp.Backend.Services;
 using TraningTrakerApp.Backend.Models;
 
-namespace TraningTrakerApp.Backend.Controllers
+namespace TraningTrakerApp.Backend.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ExerciseController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ExerciseController : ControllerBase
+    private readonly IRepository<Exercise> _repository;
+    private readonly ICurrentUser _userService;
+
+    public ExerciseController(IRepository<Exercise> repository, ICurrentUser userService) 
     {
-        private readonly IRepository<Exercise> _repository;
+      _repository = repository;
+      _userService = userService;
+    }
 
-        public ExerciseController(IRepository<Exercise> repository) 
-        {
-          _repository = repository;   
-        }
+    // Read all
+    [HttpGet]
+    public async Task<IEnumerable<Exercise>> GetAllExersises(int? page, int? limit)  
+    {
+        return await _repository.GetAll(page, limit);
+    }
 
-        // Read all
-        [HttpGet]
-        public async Task<IEnumerable<Exercise>> GetAllExersises(int? page, int? limit)  
-        {
-            return await _repository.GetAll(page, limit);
-        }
+    // Read single
+    [HttpGet("{id}", Name = "GetById")]
+    public async Task<IActionResult> GetById(int id)  
+    {
+       Exercise? result = await _repository.Get(id);
 
-        // Read single
-        [HttpGet("{id}", Name = "GetById")]
-        public async Task<IActionResult> GetById(Guid id)  
-        {
-           Exercise? result = await _repository.Get(id);
+       if(result != null)
+       {
+         return Ok(result);
+       }
+       return NotFound();
+    }
 
-           if(result != null)
-           {
-             return Ok(result);
-           }
-           return NotFound();
-        }
+    // Create
+    [HttpPost]
+    public async Task<IActionResult> CreateExercise([FromBody]Exercise newExercise)  
+    {
+        Exercise result = await _repository.Create(newExercise);
+        return CreatedAtAction("GetById", new { result.Id }, result);
+        
+    }
 
-        // Create
-        [HttpPost]
-        public async Task<IActionResult> CreateExercise([FromBody]Exercise newExercise)  
-        {
-            Exercise result = await _repository.Create(newExercise);
-            // return CreatedAtAction("GetById", new {id = result.Id});
-            return Ok(result);
-        }
+    // Update
+    [HttpPatch]
+    public async Task<IActionResult> Update([FromBody]Exercise updatedExercise)  
+    {
+        await _repository.Update(updatedExercise);
+        return Ok();
+    }
 
-        // Update
-        [HttpPatch]
-        public async Task<IActionResult> Update([FromBody]Exercise updatedExercise)  
-        {
-            await _repository.Update(updatedExercise);
-            return Ok();
-        }
-
-        // Delete
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteById(Guid id)  
-        {
-            await _repository.Delete(id);
-            return Ok();
-        }
+    // Delete
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteById(int id)  
+    {
+        await _repository.Delete(id);
+        return Ok();
     }
 }
