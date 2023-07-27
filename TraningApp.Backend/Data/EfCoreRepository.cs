@@ -20,7 +20,7 @@ public class EfCoreRepository<T> : IRepository<T> where T : class
         return entity;
     }
 
-    public async Task Delete(Guid id)
+    public async Task Delete(int id)
     {
         T entity = await _context.Set<T>().FindAsync(id);
 
@@ -31,7 +31,7 @@ public class EfCoreRepository<T> : IRepository<T> where T : class
         }
     }
 
-    public async Task<T?> Get(Guid id)
+    public async Task<T?> Get(int id)
     {
         T entity = await _context.Set<T>().FindAsync(id);
         return entity;
@@ -58,6 +58,20 @@ public class EfCoreRepository<T> : IRepository<T> where T : class
     {
         _context.Set<T>().Update(entity);
         await _context.SaveChangesAsync();
+    }
+    public async Task<T?> FindBy(Func<T, bool> selector)
+    {
+        IEnumerable<T> entities = await GetAll(null, null);
+        T? entity = entities.Select(selector).FirstOrDefault() as T;
+        return entity;
+    }
+
+    public async Task<IEnumerable<T?>> FindManyBy(Func<T, bool> selector, int? page, int? limit)
+    {
+        IEnumerable<T?> entities = await GetAll(page, limit);
+        entities = entities.Select(selector) as IEnumerable<T>;
+
+        return entities;
     }
 
 }
