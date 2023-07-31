@@ -7,12 +7,12 @@ namespace TraningTrakerApp.Backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ExerciseController : ControllerBase
+public class ExerciseConttroller : ControllerBase
 {
     private readonly IRepository<Exercise> _repository;
     private readonly ICurrentUser _userService;
 
-    public ExerciseController(IRepository<Exercise> repository, ICurrentUser userService) 
+    public ExerciseConttroller(IRepository<Exercise> repository, ICurrentUser userService) 
     {
       _repository = repository;
       _userService = userService;

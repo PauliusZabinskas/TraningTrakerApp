@@ -21,7 +21,7 @@ public class EfCoreRepository<T> : IRepository<T> where T : class
 
     public async Task Delete(int id)
     {
-        T entity = await _context.Set<T>().FindAsync(id);
+        T? entity = await _context.Set<T>().FindAsync(id);
 
         if (entity != null)
         {
@@ -32,7 +32,7 @@ public class EfCoreRepository<T> : IRepository<T> where T : class
 
     public async Task<T?> Get(int id)
     {
-        T entity = await _context.Set<T>().FindAsync(id);
+        T? entity = await _context.Set<T>().FindAsync(id);
         return entity;
     }
 

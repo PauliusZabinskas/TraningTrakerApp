@@ -11,7 +11,7 @@ public class CurrentUser : ICurrentUser
 
     public int? GetUser()
     {
-        return 5;
+        return 1;
     }
 }
 
