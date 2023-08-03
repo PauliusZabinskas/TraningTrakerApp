@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Services;
 using TraningApp.Backend.Services;
+using TraningTrakerApp.Backend.Models;
 using Session = TraningApp.Backend.Models.Session;
 
 namespace TraningTrakerApp.Backend.Controllers;
@@ -11,11 +12,13 @@ public class SessionController : ControllerBase
 {
     private readonly IRepository<Session> _repository;
     private readonly ICurrentUser _userService;
+    private readonly ICurrentSession _currentSession;
 
-    public SessionController(IRepository<Session> repository, ICurrentUser userService) 
+    public SessionController(IRepository<Session> repository, ICurrentUser userService, ICurrentSession currentSession) 
     {
-      _repository = repository;
-      _userService = userService;
+        _currentSession = currentSession;
+        _repository = repository;
+        _userService = userService;
     }
 
     // Read all
@@ -62,15 +65,17 @@ public class SessionController : ControllerBase
 
     // Update
     [HttpPatch]
-    public async Task<IActionResult> Update([FromBody]Session updatedExercise)  
+    public async Task<IActionResult> Update([FromBody]Session updatedSession)  
     {
         int? currentuserId = _userService.GetUser();
 
-        if(updatedExercise != null && currentuserId == updatedExercise.CreatedBy)
+        
+
+        if(updatedSession != null && currentuserId == updatedSession.CreatedBy)
         {
-            await _repository.Update(updatedExercise);
+            await _repository.Update(updatedSession);
             return Ok();
-        }else if (updatedExercise == null)
+        }else if (updatedSession == null)
         {
             return NotFound();
         }
@@ -92,4 +97,31 @@ public class SessionController : ControllerBase
         }
         return NoContent();
     }
+
+    [HttpPost("exercise")]
+    public async Task<IActionResult> AddExerciseToSession([FromBody] Exercise updatedExercise)
+    {
+        int? sessionID = _currentSession.GetSession();
+        Session session = await _repository.Get(sessionID.Value);
+        IEnumerable<Exercise> exerciseList = session.Exercises;
+
+        int? currentuserId = _userService.GetUser();
+
+        if(session != null && currentuserId == session.CreatedBy)
+        {
+            
+            session.Exercises =  exerciseList.Append(updatedExercise).ToList();
+
+            await _repository.Update(session);
+
+            return Ok(session);
+
+        }else if (session == null)
+        {
+            return NotFound();
+        }
+        return Unauthorized();
+    }
+
+    
 }

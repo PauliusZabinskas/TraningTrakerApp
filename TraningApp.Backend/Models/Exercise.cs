@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace TraningTrakerApp.Backend.Models
 {
     public class Exercise 
@@ -9,6 +11,8 @@ namespace TraningTrakerApp.Backend.Models
         public ExerciseType ExerciseType { get; set; } = ExerciseType.StrengthTraining;
         public int ExerciseSets { get; set; } = 0;
         public int ExerciseReps { get; set; } = 0;
+        
+        [ForeignKey(nameof(SessionId))]
         public int SessionId { get; set; }
         
 
