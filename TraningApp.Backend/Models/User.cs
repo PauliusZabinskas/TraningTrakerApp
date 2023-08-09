@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace TraningApp.Backend.Models
 {
-    public class User : IdentityUser
+    public class User 
     {
         public int Id { get; set; } 
         public string? UserName { get; set;} = "Default";

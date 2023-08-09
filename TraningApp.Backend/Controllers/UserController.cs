@@ -4,7 +4,7 @@ using TraningApp.Backend.Services;
 
 [ApiController]
 
-[Route("[controller]")]
+[Route("[controller]/[action]")]
 
 public class UserController : ControllerBase
 {

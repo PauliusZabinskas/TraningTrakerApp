@@ -1,5 +1,10 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Services;
+using TraningApp.Backend.Models.DTOs;
+using TraningApp.Backend.Models.DTOs.SessionDTOs;
 using TraningApp.Backend.Services;
 using TraningTrakerApp.Backend.Models;
 using Session = TraningApp.Backend.Models.Session;
@@ -7,15 +12,17 @@ using Session = TraningApp.Backend.Models.Session;
 namespace TraningTrakerApp.Backend.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/[controller]/[action]")]
 public class SessionController : ControllerBase
 {
     private readonly IRepository<Session> _repository;
     private readonly ICurrentUser _userService;
     private readonly ICurrentSession _currentSession;
+    private readonly IMapper _mapper;
 
-    public SessionController(IRepository<Session> repository, ICurrentUser userService, ICurrentSession currentSession) 
+    public SessionController(IRepository<Session> repository, ICurrentUser userService, ICurrentSession currentSession, IMapper mapper) 
     {
+        _mapper = mapper;
         _currentSession = currentSession;
         _repository = repository;
         _userService = userService;
@@ -26,8 +33,10 @@ public class SessionController : ControllerBase
     public async Task<IActionResult> GetAllSessions([FromQuery] int? skip, [FromQuery] int? limit)  
     {
         IEnumerable<Session?> result = await _repository.FindManyBy(x => x.CreatedBy == _userService.GetUser(), skip, limit);
-        return Ok(result);
+        
+        return Ok(_mapper.Map<SessionDTO>(result));
     }
+    
 
     // Read single
     [HttpGet("{id}", Name = "GetByIntID")]
@@ -38,7 +47,8 @@ public class SessionController : ControllerBase
 
         if(result != null && currentUserId == result.CreatedBy)
         {
-            return Ok(result);
+            SessionDTO sessionDTO = _mapper.Map<SessionDTO>(result);
+            return Ok(sessionDTO);
 
         }else if(result == null)
         {
@@ -49,17 +59,23 @@ public class SessionController : ControllerBase
        
     }
 
+    
+
     // Create
     [HttpPost]
-    public async Task<IActionResult> CreateSession([FromBody]Session newSession)  
+    public async Task<IActionResult> CreateSession([FromBody]CreateSessionDTO newSession)  
     {
         newSession.CreatedBy = _userService.GetUser();
 
-        Session result = await _repository.Create(newSession);
+        Session MappedSession = _mapper.Map<Session>(newSession);
 
-        //  return CreatedAtAction("GetByIntID", new { result.Id }, result);
+        Session result = await _repository.Create(MappedSession);
 
-        return Ok(result);
+        CreateSessionDTO sessionDto = _mapper.Map<CreateSessionDTO>(result);
+
+        // return CreatedAtAction("GetByIntID", new { result.Id }, result);
+
+        return Ok(sessionDto);
         
     }
 
@@ -73,6 +89,7 @@ public class SessionController : ControllerBase
 
         if(updatedSession != null && currentuserId == updatedSession.CreatedBy)
         {
+            
             await _repository.Update(updatedSession);
             return Ok();
         }else if (updatedSession == null)
@@ -98,30 +115,79 @@ public class SessionController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("exercise")]
-    public async Task<IActionResult> AddExerciseToSession([FromBody] Exercise updatedExercise)
+    // [HttpPost]
+    // public async Task<IActionResult> AddExerciseToSession([FromBody] CreateExerciseDTO AddExercise)
+    // {
+
+    //     int? sessionID = _currentSession.GetSession();
+
+    //     Session session = await _repository.Get(sessionID.Value);
+
+    //     IEnumerable<Exercise> exerciseList = session.Exercises;
+
+    //     int? currentuserId = _userService.GetUser();
+
+    //     if(session != null && currentuserId == session.CreatedBy)
+    //     {
+    //         Exercise mappedToExercise = _mapper.Map<Exercise>(AddExercise);
+    //         session.Exercises =  exerciseList.Append(mappedToExercise).ToList();
+
+    //         await _repository.Update(session);
+
+    //         SessionDetailsDTO sessionDTO = _mapper.Map<SessionDetailsDTO>(session);
+
+    //         return Ok(sessionDTO);
+
+    //     }else if (session == null)
+    //     {
+    //         return NotFound();
+    //     }
+    //     return Unauthorized();
+    // }
+
+    
+
+[HttpPost]
+public async Task<IActionResult> AddExerciseToSession([FromBody] CreateExerciseDTO AddExercise)
+{
+    int? sessionID = _currentSession.GetSession();
+
+    Session session = await _repository.Get(sessionID.Value);
+
+    List<Exercise> exerciseList = session.Exercises?.ToList() ?? new List<Exercise>();
+
+    int? currentUserId = _userService.GetUser();
+
+    if (session != null && currentUserId == session.CreatedBy)
     {
-        int? sessionID = _currentSession.GetSession();
-        Session session = await _repository.Get(sessionID.Value);
-        IEnumerable<Exercise> exerciseList = session.Exercises;
+        Exercise mappedToExercise = _mapper.Map<Exercise>(AddExercise);
+        exerciseList.Add(mappedToExercise); // Add exercise to the list
 
-        int? currentuserId = _userService.GetUser();
+        session.Exercises = exerciseList; // Assign the updated list back to session
 
-        if(session != null && currentuserId == session.CreatedBy)
+        await _repository.Update(session);
+
+        SessionDetailsDTO sessionDTO = _mapper.Map<SessionDetailsDTO>(session);
+
+        // Configure JsonSerializerOptions to handle object cycles
+        var jsonOptions = new JsonSerializerOptions
         {
-            
-            session.Exercises =  exerciseList.Append(updatedExercise).ToList();
+            ReferenceHandler = ReferenceHandler.Preserve
+        };
 
-            await _repository.Update(session);
+        // Serialize the sessionDTO object to JSON using the configured options
+        string sessionJson = JsonSerializer.Serialize(sessionDTO, jsonOptions);
 
-            return Ok(session);
-
-        }else if (session == null)
-        {
-            return NotFound();
-        }
-        return Unauthorized();
+        return Ok(sessionJson);
     }
+    else if (session == null)
+    {
+        return NotFound();
+    }
+    return Unauthorized();
+}
+
+
 
     
 }

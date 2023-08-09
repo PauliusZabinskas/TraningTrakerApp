@@ -36,6 +36,7 @@ public class EfCoreRepository<T> : IRepository<T> where T : class
         return entity;
     }
 
+
     public async Task<IEnumerable<T>> GetAll(int? page, int? limit)
     {
         IQueryable<T> entities = _context.Set<T>().AsQueryable();  

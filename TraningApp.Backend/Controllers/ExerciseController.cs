@@ -6,7 +6,7 @@ using TraningTrakerApp.Backend.Models;
 namespace TraningTrakerApp.Backend.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/[controller]/[action]")]
 public class ExerciseConttroller : ControllerBase
 {
     private readonly IRepository<Exercise> _repository;
@@ -43,7 +43,8 @@ public class ExerciseConttroller : ControllerBase
     public async Task<IActionResult> CreateExercise([FromBody]Exercise newExercise)  
     {
         Exercise result = await _repository.Create(newExercise);
-        return CreatedAtAction("GetById", new { result.Id }, result);
+        // return CreatedAtAction("GetById", new { result.Id }, result);
+        return Ok(result);
         
     }
 

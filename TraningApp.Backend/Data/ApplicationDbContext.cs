@@ -5,11 +5,11 @@ using TraningTrakerApp.Backend.Models;
 
 namespace TraningApp.Backend.Data;
 
-public class ApplicationDbContext : IdentityDbContext<User>
+public class ApplicationDbContext : DbContext
 {
     public DbSet<Exercise> Exercises { get; set; }
     public DbSet<Session> Sessions { get; set; }
-    // public DbSet<User> Users { get; set; }
+    public DbSet<User> Users { get; set; }
 
     
     public ApplicationDbContext(DbContextOptions options): base(options)
