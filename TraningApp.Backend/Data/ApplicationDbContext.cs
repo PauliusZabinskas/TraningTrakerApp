@@ -16,4 +16,13 @@ public class ApplicationDbContext : DbContext
     {
 
     }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Session>()
+            .HasMany(e => e.Exercises)
+            .WithOne(e => e.Session)
+            .HasForeignKey(e => e.SessionId)
+            .IsRequired();
+    }
+    
 }

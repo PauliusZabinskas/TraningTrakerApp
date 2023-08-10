@@ -10,6 +10,6 @@ namespace TraningApp.Backend.Models.DTOs.SessionDTOs
     {
         public int Id { get; set; }
     
-        public virtual IEnumerable<Exercise> Exercises { get; set; } 
+        public IEnumerable<Exercise> Exercises { get; set; } = new List<Exercise>();
     }
 }

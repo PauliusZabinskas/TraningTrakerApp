@@ -16,7 +16,7 @@ namespace TraningTrakerApp.Backend.Models
         // making connection to Session model
         [ForeignKey(nameof(SessionId))]
         public int SessionId { get; set; }
-        public Session Session { get; set; }
+        public Session Session { get; set; } = null!;
         
     }
 }

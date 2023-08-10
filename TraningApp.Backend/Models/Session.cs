@@ -10,7 +10,7 @@ public class Session
     public string? TargetedMuscleGroups { get; set; } = "Default";
     
 
-    public virtual IEnumerable<Exercise> Exercises { get; set; } = new List<Exercise>();
-    // not needed? 
+    public  IEnumerable<Exercise> Exercises { get; set; } = new List<Exercise>();
+    
     public int? CreatedBy { get; set; }
 }

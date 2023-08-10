@@ -34,7 +34,7 @@ public class SessionController : ControllerBase
     {
         IEnumerable<Session?> result = await _repository.FindManyBy(x => x.CreatedBy == _userService.GetUser(), skip, limit);
         
-        return Ok(_mapper.Map<SessionDTO>(result));
+        return Ok(_mapper.Map<List<SessionDTO>>(result));
     }
     
 
@@ -47,8 +47,8 @@ public class SessionController : ControllerBase
 
         if(result != null && currentUserId == result.CreatedBy)
         {
-            SessionDTO sessionDTO = _mapper.Map<SessionDTO>(result);
-            return Ok(sessionDTO);
+            SessionDetailsDTO sessionDetailsDTO = _mapper.Map<SessionDetailsDTO>(result);
+            return Ok(sessionDetailsDTO);
 
         }else if(result == null)
         {
@@ -115,77 +115,77 @@ public class SessionController : ControllerBase
         return NoContent();
     }
 
-    // [HttpPost]
-    // public async Task<IActionResult> AddExerciseToSession([FromBody] CreateExerciseDTO AddExercise)
-    // {
+    [HttpPost]
+    public async Task<IActionResult> AddExerciseToSession([FromBody] CreateExerciseDTO AddExerciseDTO)
+    {
 
-    //     int? sessionID = _currentSession.GetSession();
+        int? sessionID = _currentSession.GetSession();
 
-    //     Session session = await _repository.Get(sessionID.Value);
+        Session session = await _repository.Get(sessionID.Value);
 
-    //     IEnumerable<Exercise> exerciseList = session.Exercises;
+        IEnumerable<Exercise> exerciseList = session.Exercises;
 
-    //     int? currentuserId = _userService.GetUser();
+        int? currentuserId = _userService.GetUser();
 
-    //     if(session != null && currentuserId == session.CreatedBy)
-    //     {
-    //         Exercise mappedToExercise = _mapper.Map<Exercise>(AddExercise);
-    //         session.Exercises =  exerciseList.Append(mappedToExercise).ToList();
+        if(session != null && currentuserId == session.CreatedBy)
+        {
+            Exercise mappedToExercise = _mapper.Map<Exercise>(AddExerciseDTO);
+            session.Exercises =  exerciseList.Append(mappedToExercise).ToList();
 
-    //         await _repository.Update(session);
+            await _repository.Update(session);
 
-    //         SessionDetailsDTO sessionDTO = _mapper.Map<SessionDetailsDTO>(session);
+            SessionDetailsDTO sessionDTO = _mapper.Map<SessionDetailsDTO>(session);
 
-    //         return Ok(sessionDTO);
+            return Ok(sessionDTO);
 
-    //     }else if (session == null)
-    //     {
-    //         return NotFound();
-    //     }
-    //     return Unauthorized();
-    // }
+        }else if (session == null)
+        {
+            return NotFound();
+        }
+        return Unauthorized();
+    }
 
     
 
-[HttpPost]
-public async Task<IActionResult> AddExerciseToSession([FromBody] CreateExerciseDTO AddExercise)
-{
-    int? sessionID = _currentSession.GetSession();
+// [HttpPost]
+// public async Task<IActionResult> AddExerciseToSession([FromBody] CreateExerciseDTO AddExercise)
+// {
+//     int? sessionID = _currentSession.GetSession();
 
-    Session session = await _repository.Get(sessionID.Value);
+//     Session session = await _repository.Get(sessionID.Value);
 
-    List<Exercise> exerciseList = session.Exercises?.ToList() ?? new List<Exercise>();
+//     List<Exercise> exerciseList = session.Exercises?.ToList() ?? new List<Exercise>();
 
-    int? currentUserId = _userService.GetUser();
+//     int? currentUserId = _userService.GetUser();
 
-    if (session != null && currentUserId == session.CreatedBy)
-    {
-        Exercise mappedToExercise = _mapper.Map<Exercise>(AddExercise);
-        exerciseList.Add(mappedToExercise); // Add exercise to the list
+//     if (session != null && currentUserId == session.CreatedBy)
+//     {
+//         Exercise mappedToExercise = _mapper.Map<Exercise>(AddExercise);
+//         exerciseList.Add(mappedToExercise); // Add exercise to the list
 
-        session.Exercises = exerciseList; // Assign the updated list back to session
+//         session.Exercises = exerciseList; // Assign the updated list back to session
 
-        await _repository.Update(session);
+//         await _repository.Update(session);
 
-        SessionDetailsDTO sessionDTO = _mapper.Map<SessionDetailsDTO>(session);
+//         SessionDetailsDTO sessionDTO = _mapper.Map<SessionDetailsDTO>(session);
 
-        // Configure JsonSerializerOptions to handle object cycles
-        var jsonOptions = new JsonSerializerOptions
-        {
-            ReferenceHandler = ReferenceHandler.Preserve
-        };
+//         // Configure JsonSerializerOptions to handle object cycles
+//         var jsonOptions = new JsonSerializerOptions
+//         {
+//             ReferenceHandler = ReferenceHandler.Preserve
+//         };
 
-        // Serialize the sessionDTO object to JSON using the configured options
-        string sessionJson = JsonSerializer.Serialize(sessionDTO, jsonOptions);
+//         // Serialize the sessionDTO object to JSON using the configured options
+//         string sessionJson = JsonSerializer.Serialize(sessionDTO, jsonOptions);
 
-        return Ok(sessionJson);
-    }
-    else if (session == null)
-    {
-        return NotFound();
-    }
-    return Unauthorized();
-}
+//         return Ok(sessionJson);
+//     }
+//     else if (session == null)
+//     {
+//         return NotFound();
+//     }
+//     return Unauthorized();
+// }
 
 
 
